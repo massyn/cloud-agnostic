@@ -31,10 +31,10 @@ If however you do find an opportunity to expand the usage of CloudAgnostic to su
 |**Function**|**What it does**|**Local**|**AWS**|**Azure**|**GCP**|
 |--|--|--|--|--|--|
 |`alert`|Sends a message|![slack](https://img.shields.io/badge/slack-00B050)|![SNS](https://img.shields.io/badge/sns-00B050)|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|
-|`list`|List the contents of a storage account|local disk|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|
-|`read`|Reads a blob to storage|local disk|S3 bucket / key|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|
+|`list`|List the contents of a storage account|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|
+|`read`|Reads a blob to storage|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|
 |`write`|Writes a blob to storage|![local disk](https://img.shields.io/badge/local%20disk-00B050)|![s3 bucket](https://img.shields.io/badge/s3-00B050)|![no](https://img.shields.io/badge/no-C00000)|![gs](https://img.shields.io/badge/gs-00B050)|
-|`secret`|Retrieves a secret|![no](https://img.shields.io/badge/no-C00000)|Secrets Manager|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|
+|`secret`|Retrieves a secret|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|
 
 
 ## Installation

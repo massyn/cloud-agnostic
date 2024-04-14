@@ -95,3 +95,35 @@ class CloudAgnostic:
                 self.log("SUCCESS",f"Wrote a total of {len(body)} bytes.")
             except Exception as err:
                 self.log("ERROR",f"Unable to write to local path {target} - {err}")
+
+    def read(self,target):
+        self.log("DEBUG","- function = read")
+        self.log("DEBUG",f"- target   = {target}")
+
+        if target.lower().startswith('s3://'):
+            self.log("INFO",f"Reading from s3 {target}")
+            bucket = target.split('/')[2]
+            key = '/'.join(target.split('/')[3:])
+            self.log("DEBUG",f"- S3 bucket = {bucket}")
+            self.log("DEBUG",f"- S3 key    = {key}")
+            try:
+                body = boto3.client('s3').get_object(bucket, Key=key)['Body'].read().decode('utf-8')
+
+                self.log("SUCCESS",f"Read a total of {len(body)} bytes.")
+                return body
+            except Exception as err:
+                self.log("ERROR",f"Unable to read from s3 {target} - {err}")
+                return False
+        else:
+            # -- defaults to disk
+            self.log("INFO",f"Reading from local path {target}")
+            try:
+                with open(target,'rt') as q:
+                    body = q.read()
+                    self.log("SUCCESS",f"Read a total of {len(body)} bytes.")
+                    return body
+            except Exception as err:
+                self.log("ERROR",f"Unable to read from local file {target} - {err}")
+                return False
+
+        
