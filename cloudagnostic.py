@@ -1,23 +1,32 @@
 import requests
 import json
 import boto3
-import botocore
+from google.cloud import storage
 
 class CloudAgnostic:
     def __init__(self,**KW):
-        print('CloudAgnostic')
+        self.log('INFO','Initializing...')
         self.parameters = {}
+
+        self.debug = KW.get('debug',False)
 
         # -- define alert parameters
         self.parameters['alert'] = KW.get('alert')
     
+    def log(self,sev,msg):
+        if sev == 'DEBUG' and not self.debug:
+            return
+        print(f"[CloudAgnostic] {sev} : {msg}")
+        if sev == 'FATAL':
+            exit(1)
+        
     def alert(self,sev,message,subject = None):
-        print(f"Sending {sev} alert : {message}")
+        self.log("INFO",f"alert ({sev}) {message}")
         if subject is None:
             subject = f"{sev} alert"
         # == determine what the platform type is
         if self.parameters['alert'].startswith('https://hooks.slack.com'):
-            print(" - slack")
+            self.log("INFO","Alert target = slack")
             icons = {
                 'INFO' : ':information_source:',
                 'WARNING' : ':warning:',
@@ -33,16 +42,56 @@ class CloudAgnostic:
                 'User-Agent' : 'Mozilla/5.0 (X11; U; Linux i686) Gecko/20071127 Firefox/2.0.0.11'
             }, timeout=30)
             if req.status_code != 200:
-                print("ERROR - Unable to send a slack message")
+                self.log("ERROR","Unable to send a slack message")
         elif self.parameters['alert'].startswith('arn:aws:sns:'):
-            print('- AWS SNS')
+            self.log("INFO","Alert target = aws sns")
             try:
                 boto3.client('sns').publish(TopicArn=self.parameters['alert'],Message = message, Subject = subject)
-            except botocore.exceptions.ClientError as error:
-                print(f"ERROR - sns.publish - {error.response['Error']['Code']}")
-
+            except Exception as err:
+                self.log("ERROR",f"sns.publish - {err}")
         else:
-            print('ERROR - Unable to determine what alert type this is')
+            self.log("ERROR","Unable to determine what alert type this is")
 
-        if sev == 'FATAL':
-            exit(1)
+    def write(self,target,body):
+        self.log("DEBUG","- function = write")
+        self.log("DEBUG",f"- target   = {target}")
+
+        if target.lower().startswith('s3://'):
+            self.log("INFO",f"Writing to s3 {target}")
+            bucket = target.split('/')[2]
+            key = '/'.join(target.split('/')[3:])
+            self.log("DEBUG",f"- S3 bucket = {bucket}")
+            self.log("DEBUG",f"- S3 key    = {key}")
+            try:
+                boto3.resource('s3').Bucket(bucket).put_object(
+                    ACL         = 'bucket-owner-full-control',
+                    ContentType = 'application/json',
+                    Key         = key,
+                    Body        = body
+                )
+                self.log("SUCCESS",f"Wrote a total of {len(body)} bytes.")
+            except Exception as err:
+                self.log("ERROR",f"s3.put_object - {err}")
+        elif target.lower().startswith('gs://'):
+            self.log("INFO",f"Writing to gs {target}")
+            bucket = target.split('/')[2]
+            key = '/'.join(target.split('/')[3:])
+            self.log("DEBUG",f"- GS bucket = {bucket}")
+            self.log("DEBUG",f"- GS key    = {key}")
+            try:
+                client = storage.Client()
+                bucket = client.get_bucket(bucket)
+                blob = bucket.blob(key)
+                blob.upload_from_string(body)
+                self.log("SUCCESS",f"Wrote a total of {len(body)} bytes.")
+            except Exception as err:
+                self.log("ERROR",f"storage.upload_from_string - {err}")
+        else:
+            # -- defaults to disk
+            self.log("INFO",f"Writing to local path {target}")
+            try:
+                with open(target,'wt',encoding='UTF-8') as w:
+                    w.write(body)
+                self.log("SUCCESS",f"Wrote a total of {len(body)} bytes.")
+            except Exception as err:
+                self.log("ERROR",f"Unable to write to local path {target} - {err}")

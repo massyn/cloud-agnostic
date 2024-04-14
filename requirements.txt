@@ -1,2 +1,4 @@
 requests
 boto3
+google.cloud
+google.cloud.storage
