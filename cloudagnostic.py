@@ -1,5 +1,5 @@
-import requests
 import json
+import requests
 import boto3
 from google.cloud import storage
 
@@ -19,7 +19,7 @@ class CloudAgnostic:
         print(f"[CloudAgnostic] {sev} : {msg}")
         if sev == 'FATAL':
             exit(1)
-        
+
     def alert(self,sev,message,subject = None):
         self.log("INFO",f"alert ({sev}) {message}")
         if subject is None:
