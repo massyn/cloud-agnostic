@@ -34,7 +34,7 @@ If however you do find an opportunity to expand the usage of CloudAgnostic to su
 |`list`|List the contents of a storage account|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|
 |`read`|Reads from blob storage|![local disk](https://img.shields.io/badge/local%20disk-00B050)|![s3 bucket](https://img.shields.io/badge/s3-00B050)|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|
 |`write`|Writes a blob to storage|![local disk](https://img.shields.io/badge/local%20disk-00B050)|![s3 bucket](https://img.shields.io/badge/s3-00B050)|![no](https://img.shields.io/badge/no-C00000)|![gs](https://img.shields.io/badge/gs-00B050)|
-|`secret`|Retrieves a secret|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|
+|`secret`|Retrieves a secret|![no](https://img.shields.io/badge/no-C00000)|![secretsmanager](https://img.shields.io/badge/secretsmanager-00B050)|![no](https://img.shields.io/badge/no-C00000)|![no](https://img.shields.io/badge/no-C00000)|
 
 
 ## Installation
@@ -44,36 +44,17 @@ $ git clone https://github.com/massyn/cloud-agnostic
 $ pip install -r cloud-agnostic/requirements.txt
 ```
 
-
 ## Examples
 
 ### Write a file
 
-**AWS S3**
-
 ```python
 from cloudagnostic import CloudAgnostic
 CA = CloudAgnostic()
 
-CA.write('s3://bucket/key.txt','hello world')
-```
-
-**Google storage**
-
-```python
-from cloudagnostic import CloudAgnostic
-CA = CloudAgnostic()
-
-CA.write('gs://bucket/key.txt','hello world')
-```
-
-**Local file**
-
-```python
-from cloudagnostic import CloudAgnostic
-CA = CloudAgnostic()
-
-CA.write('/tmp/key.txt','hello world')
+CA.write('s3://bucket/key.txt','hello world')   # AWS S3
+CA.write('gs://bucket/key.txt','hello world')   # Google
+CA.write('/tmp/key.txt','hello world')  # local file
 ```
 
 ### Send an alert
@@ -94,4 +75,12 @@ CA = CloudAgnostic(alert = 'arn:aws:sns:ap-southeast-2:000000000000:mytopic')
 CA.alert('INFO','hello world')
 ```
 
+### Secret
+
+```python
+from cloudagnostic import CloudAgnostic
+CA = CloudAgnostic()
+
+x = CA.secret('arn:aws:secretsmanager:ap-southeast-2:000000000000:secret:yyyyy')    # AWS Secrets Manager
+```
 

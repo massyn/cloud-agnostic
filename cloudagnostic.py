@@ -108,7 +108,6 @@ class CloudAgnostic:
             self.log("DEBUG",f"- S3 key    = {key}")
             try:
                 body = boto3.client('s3').get_object(bucket, Key=key)['Body'].read().decode('utf-8')
-
                 self.log("SUCCESS",f"Read a total of {len(body)} bytes.")
                 return body
             except Exception as err:
@@ -126,4 +125,18 @@ class CloudAgnostic:
                 self.log("ERROR",f"Unable to read from local file {target} - {err}")
                 return False
 
-        
+    def secret(self,target):
+        self.log("DEBUG","- function = secret")
+        self.log("DEBUG",f"- target   = {target}")
+
+        if target.startswith('arn:aws:secretsmanager'):
+            try:
+                return boto3.client('secretsmanager').get_secret_value(SecretId=target)['SecretString']
+            except Exception as err:
+                self.log("ERROR",f"Unable to read secret {target} - {err}")
+                return False
+        else:
+            self.log("ERROR","Unknown secret type")
+            return False
+
+    
